@@ -1,0 +1,6 @@
+endpoints:
+  - name: google
+    url: "https://www.google.com"
+    interval: 1m
+    conditions:
+      - "[STATUS] == 200"
