@@ -12,3 +12,8 @@ output "alb_dns_name" {
   description = "DNS name of the ALB"
   value       = aws_lb.gatus_alb.dns_name
 }
+
+output "alb_zone_id" {
+  description = "Hosted zone ID of the ALB"
+  value       = aws_lb.gatus_alb.zone_id
+}
