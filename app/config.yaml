@@ -1,53 +1,60 @@
 endpoints:
-  - name: front-end
-    group: core
-    url: "https://twin.sh/health"
-    interval: 5m
+  - name: gatus-health
+    group: project
+    url: "https://gatus.moabdullahi.uk/health"
+    interval: 30s
     conditions:
       - "[STATUS] == 200"
       - "[BODY].status == UP"
-      - "[RESPONSE_TIME] < 150"
 
-  - name: back-end
-    group: core
-    url: "https://example.org/"
+  - name: gatus-ui
+    group: project
+    url: "https://gatus.moabdullahi.uk/"
+    interval: 1m
+    conditions:
+      - "[STATUS] == 200"
+      - "[RESPONSE_TIME] < 2000"
+
+  - name: github
+    group: external
+    url: "https://github.com"
     interval: 5m
     conditions:
       - "[STATUS] == 200"
       - "[CERTIFICATE_EXPIRATION] > 48h"
 
-  - name: monitoring
-    group: internal
-    url: "https://example.org/"
+  - name: aws
+    group: external
+    url: "https://aws.amazon.com"
     interval: 5m
     conditions:
       - "[STATUS] == 200"
+      - "[CERTIFICATE_EXPIRATION] > 48h"
 
-  - name: nas
-    group: internal
-    url: "https://example.org/"
+  - name: google
+    group: external
+    url: "https://www.google.com"
     interval: 5m
     conditions:
       - "[STATUS] == 200"
+      - "[CERTIFICATE_EXPIRATION] > 48h"
 
-  - name: example-dns-query
-    url: "8.8.8.8" # Address of the DNS server to use
+  - name: cloudflare-dns
+    group: network
+    url: "1.1.1.1"
     interval: 5m
     dns:
-      query-name: "example.com"
+      query-name: "gatus.moabdullahi.uk"
       query-type: "A"
     conditions:
-      - "[BODY] == pat(*.*.*.*)"  # Matches any IPv4 address
       - "[DNS_RCODE] == NOERROR"
 
-  - name: icmp-ping
-    url: "icmp://example.org"
-    interval: 1m
+  - name: google-dns
+    group: network
+    url: "8.8.8.8"
+    interval: 5m
+    dns:
+      query-name: "gatus.moabdullahi.uk"
+      query-type: "A"
     conditions:
-      - "[CONNECTED] == true"
-
-  - name: check-domain-expiration
-    url: "https://example.org/"
-    interval: 1h
-    conditions:
-      - "[DOMAIN_EXPIRATION] > 720h"
+      - "[DNS_RCODE] == NOERROR"
