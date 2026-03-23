@@ -44,3 +44,6 @@ jobs:
       - name: Terraform apply
         run: terraform apply -auto-approve
 
+      - name: Post-deploy health check
+        run: |
+          curl -f https://gatus.moabdullahi.uk
