@@ -2,11 +2,6 @@ module "vpc" {
   source = "./modules/vpc"
 }
 
-module "ecr" {
-  source       = "./modules/ecr"
-  project_name = var.project_name
-}
-
 module "acm" {
   source         = "./modules/acm"
   project_name   = var.project_name
@@ -32,7 +27,7 @@ module "ecs" {
   private_subnet_ids    = module.vpc.private_subnet_ids
   alb_target_group_arn  = module.alb.target_group_arn
   alb_security_group_id = module.alb.alb_security_group_id
-  container_image       = "${module.ecr.repository_url}:latest"
+  container_image = var.container_image
   container_port        = 8080
 }
 

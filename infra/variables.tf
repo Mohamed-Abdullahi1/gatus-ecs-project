@@ -20,3 +20,8 @@ variable "hosted_zone_id" {
   description = "Route53 hosted zone ID for the delegated subdomain"
   type        = string
 }
+
+variable "container_image" {
+  description = "ECR image URI"
+  type        = string
+}
