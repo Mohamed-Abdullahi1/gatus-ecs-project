@@ -1,163 +1,166 @@
-# Gatus Monitoring Dashboard on AWS (ECS Fargate)
+# ECS Gatus Monitoring Stack
 
+A production-style containerised monitoring application deployed on AWS using ECS Fargate, provisioned with Terraform, and delivered through a CI/CD pipeline.
+
+---
 ## Overview
 
-This project deploys a production-style monitoring dashboard using Gatus on AWS.
+This project demonstrates a complete end-to-end deployment of a containerised application in AWS.
 
-The application runs on ECS Fargate inside private subnets and is exposed through an Application Load Balancer. HTTPS is configured using AWS Certificate Manager and the service is accessible via a custom domain.
+It includes infrastructure provisioning, container build and deployment, secure networking, and real-time monitoring.
 
-Infrastructure is provisioned using Terraform and deployments are automated using GitHub Actions.
-
-The goal of this project was to demonstrate how networking, container orchestration, and CI/CD come together in a real system.
+The application is deployed behind an Application Load Balancer, runs in private subnets, and is exposed via a custom domain over HTTPS.
 
 ---
-
 ## Live Application
 
-The application is publicly accessible over HTTPS.
+The application is deployed and accessible via a custom domain.
 
-![Live Application](screenshots/live-application-https.png)
+Real-time monitoring is implemented using Gatus, providing visibility into uptime, response times, and system health.
+
+![App Demo](screenshots/app-demo.gif)
 
 ---
+### HTTPS Validation
 
-## HTTPS Configuration
-
-The application is secured using an ACM certificate and served over HTTPS through the ALB.
+The application is served over HTTPS using AWS Certificate Manager.
 
 ![HTTPS Certificate](screenshots/https-certificate-valid.png)
+
+---
+## Key Features
+
+- ECS Fargate deployment (serverless containers)
+- Multi-AZ architecture across two Availability Zones
+- Private subnet isolation for application tasks
+- Application Load Balancer for controlled ingress
+- NAT Gateway for outbound internet access
+- CI/CD pipeline using GitHub Actions
+- Docker image build and push to Amazon ECR
+- Infrastructure as Code using Terraform
+- Remote Terraform state stored in S3 with locking
+- HTTPS enabled via AWS Certificate Manager
+- Real-time monitoring with Gatus
 
 ---
 
 ## Architecture
 
-The system is deployed in a custom VPC across multiple availability zones.
-
-Public subnets host the Application Load Balancer and NAT Gateway.  
-Private subnets run ECS Fargate tasks.  
-
-Traffic flow:
-
-- Users access the application via HTTPS  
-- Traffic is routed through Route 53 and the ALB  
-- ECS tasks handle requests inside private subnets  
-- Images are pulled from ECR  
-- Logs are sent to CloudWatch  
-
 ![Architecture Diagram](screenshots/architecture-diagram.png)
 
 ---
 
-## CI/CD Pipelines
+## Architecture Overview
 
-### Build and Push (ECR)
+The application is deployed in AWS across two Availability Zones to improve resilience and availability.
 
-Docker images are built and pushed to Amazon ECR using GitHub Actions.
+User traffic is routed through Route53 to a custom domain, which resolves to an Application Load Balancer. HTTPS is enabled using AWS Certificate Manager.
 
-![Build Pipeline](screenshots/pipeline-build.png)
+The load balancer distributes incoming requests to ECS Fargate tasks running in private subnets. These tasks are not directly exposed to the internet, ensuring a secure architecture where all inbound traffic is controlled through the load balancer.
 
----
+The VPC is split into public and private subnets:
 
-### Terraform Deploy
+- Public subnets host the Application Load Balancer and NAT Gateway  
+- Private subnets host ECS tasks  
 
-Infrastructure is deployed and updated automatically.
+Outbound internet access from ECS tasks, such as pulling container images from ECR, is handled via the NAT Gateway. This allows the tasks to communicate externally without being publicly accessible.
 
-![Terraform Deploy](screenshots/pipeline-deploy.png)
+The application container is built and pushed to Amazon ECR through a CI/CD pipeline using GitHub Actions. Terraform is used to provision and manage all infrastructure, with remote state stored in S3 for consistency and state locking.
 
----
+Monitoring is implemented using Gatus, providing real-time visibility into application health, response times, and uptime.
 
-### Terraform Destroy
+Overall, this architecture follows a production-style design, separating public and private resources, enforcing controlled access, and ensuring high availability across Availability Zones.
 
-Infrastructure can be cleanly torn down when needed.
+## Pipeline Execution
 
-![Terraform Destroy](screenshots/pipeline-destroy.png)
+The CI/CD pipelines are fully operational and handle the build, deployment, and teardown of infrastructure.
 
----
+### Build and Push Pipeline
 
-## Key Components
+Builds the Docker image and pushes it to Amazon ECR.
 
-### Networking
-
-- Custom VPC with public and private subnets  
-- Internet Gateway for inbound access  
-- NAT Gateway for outbound traffic from private subnets  
-- Route tables controlling traffic flow  
-
-### Compute
-
-- ECS Cluster using Fargate  
-- Stateless containerised Gatus service  
-- Multi-AZ deployment for availability  
-
-### Load Balancing
-
-- Application Load Balancer  
-- HTTPS listener with ACM certificate  
-- Target groups routing traffic to ECS tasks  
-
-### Security
-
-- Least privilege security groups  
-- ECS tasks only accessible via ALB  
-- No direct public exposure of compute layer  
-
-### CI/CD
-
-- GitHub Actions pipelines  
-- Automated image build and push  
-- Automated infrastructure deployment  
-
-### Observability
-
-- CloudWatch logs  
-- ALB health checks  
+![Build and Push](screenshots/pipeline-build.png)
 
 ---
 
-## Infrastructure as Code
+### Deploy Pipeline
 
-All infrastructure is defined using Terraform.
+Runs Terraform to provision and update infrastructure, including ECS services.
 
-Resources include:
-
-- VPC and subnet configuration  
-- ECS cluster and service  
-- ALB and target groups  
-- IAM roles and policies  
-- ACM certificate  
-
-This allows the environment to be reproducible and version controlled.
+![Deploy Pipeline](screenshots/pipeline-deploy.png)
 
 ---
 
-## Deployment Flow
+### Destroy Pipeline
 
-1. Application is containerised using Docker  
-2. Image is pushed to Amazon ECR  
-3. GitHub Actions pipeline runs  
-4. Terraform provisions or updates infrastructure  
-5. ECS service deploys updated containers  
-6. ALB routes traffic to healthy tasks  
+Tears down infrastructure when required.
 
----
+![Destroy Pipeline](screenshots/pipeline-destroy.png)
 
-## Repository Structure
+## Project Structure
+
+```text
 .
-├── .github/
-│   └── workflows/        # CI/CD pipelines (build, deploy, destroy)
-├── app/                  # Gatus configuration and application files
-├── bootstrap/            # Initial setup (remote state, backend, prerequisites)
-├── infra/                # Terraform infrastructure (VPC, ECS, ALB, IAM)
-├── screenshots/          # Project screenshots for documentation
-├── .dockerignore         # Docker build exclusions
-├── .gitignore            # Git ignored files
-├── Dockerfile            # Container build definition
-├── health.go             # Optional health check endpoint 
-└── README.md
+├──app/                       # Gatus application configuration
+├── bootstrap/                # Initial infrastructure (e.g. state backend)
+├── infra/
+│   ├── modules/              # Reusable Terraform modules
+│   │   ├── acm/
+│   │   ├── alb/
+│   │   ├── ecs/
+│   │   ├── route53/
+│   │   └── vpc/
+│   ├── backend.tf            # S3 remote state configuration
+│   ├── provider.tf           # AWS provider configuration
+│   ├── variables.tf          # Input variables
+│   ├── outputs.tf            
+│   └── main.tf               # Root infrastructure definition
+├── .github/workflows/        # CI/CD pipelines
+├── screenshots/              # Architecture diagram and demo assets
+├── Dockerfile                # Container build definition
+```
+## Security Considerations
 
-## Local Setup
+- ECS tasks run in private subnets with no public IP addresses  
+- All inbound traffic is routed through the Application Load Balancer  
+- Security groups restrict access to ALB → ECS only  
+- HTTPS is enforced using AWS Certificate Manager  
+- No direct internet access to application containers  
 
-### Clone the Repository
+## How to Run This Project
+
+### Prerequisites
+
+- Terraform
+- AWS CLI (configured with credentials)
+
+---
+
+### 1. Clone the repository
 
 ```bash
 git clone https://github.com/Mohamed-Abdullahi1/gatus-ecs-project.git
 cd gatus-ecs-project
+```
+
+---
+
+### 2. Configure AWS credentials
+
+```bash
+aws configure
+```
+
+---
+
+### 3. Apply infrastructure
+
+```bash
+cd infra
+terraform init
+terraform apply
+```
+
+---
+
+Application builds and deployments are handled automatically through the CI/CD pipeline.
