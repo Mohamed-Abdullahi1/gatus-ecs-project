@@ -21,7 +21,12 @@ variable "hosted_zone_id" {
   type        = string
 }
 
-variable "container_image" {
-  description = "ECR image URI"
+variable "ecr_repository_url" {
+  description = "ECR repository URL"
+  type        = string
+}
+
+variable "image_tag" {
+  description = "Docker image tag"
   type        = string
 }
