@@ -1,3 +1,7 @@
+locals {
+  container_image = "${var.ecr_repository_url}:${var.image_tag}"
+}
+
 resource "aws_ecs_cluster" "gatus_cluster" {
   name = "${var.project_name}-cluster"
 
@@ -75,7 +79,7 @@ resource "aws_ecs_task_definition" "gatus" {
   container_definitions = jsonencode([
     {
       name      = var.project_name
-      image     = var.container_image
+      image     = local.container_image
       essential = true
 
       portMappings = [
