@@ -27,8 +27,11 @@ module "ecs" {
   private_subnet_ids    = module.vpc.private_subnet_ids
   alb_target_group_arn  = module.alb.target_group_arn
   alb_security_group_id = module.alb.alb_security_group_id
-  container_image = var.container_image
-  container_port        = 8080
+
+  ecr_repository_url = var.ecr_repository_url
+  image_tag          = var.image_tag
+
+  container_port = 8080
 }
 
 module "route53" {
