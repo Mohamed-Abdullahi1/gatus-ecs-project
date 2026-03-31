@@ -41,6 +41,7 @@ The application is served over HTTPS using AWS Certificate Manager.
 - Remote Terraform state stored in S3 with locking
 - HTTPS enabled via AWS Certificate Manager
 - Real-time monitoring with Gatus
+- Immutable deployments using commit SHA-based Docker image tagging
 
 ---
 
@@ -86,6 +87,8 @@ Builds the Docker image and pushes it to Amazon ECR.
 ### Deploy Pipeline
 
 Runs Terraform to provision and update infrastructure, including ECS services.
+
+Terraform variables are dynamically injected via environment variables in the CI pipeline, including the container image tag and infrastructure configuration.
 
 ![Deploy Pipeline](screenshots/pipeline-deploy.png)
 
