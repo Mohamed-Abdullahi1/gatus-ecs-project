@@ -24,8 +24,13 @@ variable "alb_security_group_id" {
   type        = string
 }
 
-variable "container_image" {
-  description = "Container image URI from ECR"
+variable "ecr_repository_url" {
+  description = "ECR repository URL"
+  type        = string
+}
+
+variable "image_tag" {
+  description = "Docker image tag"
   type        = string
 }
 
