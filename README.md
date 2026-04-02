@@ -80,7 +80,7 @@ The CI/CD pipelines are fully operational and handle the build, deployment, and 
 
 Builds the Docker image and pushes it to Amazon ECR.
 
-![Build and Push](screenshots/pipeline-build.png)
+![Build and Push](screenshots/pipeline-build-v2.png)
 
 ---
 
