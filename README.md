@@ -122,6 +122,15 @@ Tears down infrastructure when required.
 ├── screenshots/              # Architecture diagram and demo assets
 ├── Dockerfile                # Container build definition
 ```
+
+## Docker Improvements
+
+The application uses a multi-stage Docker build to ensure the final image only contains what is necessary, reducing image size.
+
+The runtime container is configured to run as a non-root user, following the principle of least privilege and reducing the impact of a potential container compromise.
+
+File ownership is explicitly set to ensure the application has the correct permissions when running as a non-root user.
+
 ## Security Considerations
 
 - ECS tasks run in private subnets with no public IP addresses  
