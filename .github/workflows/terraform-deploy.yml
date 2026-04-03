@@ -1,6 +1,5 @@
 name: Terraform Deploy
 
-
 on:
   push:
     branches:
@@ -56,4 +55,5 @@ jobs:
 
       - name: Post-deploy health check
         run: |
+          sleep 30
           curl -f https://gatus.moabdullahi.uk
