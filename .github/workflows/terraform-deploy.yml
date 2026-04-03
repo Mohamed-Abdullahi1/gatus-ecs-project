@@ -55,5 +55,13 @@ jobs:
 
       - name: Post-deploy health check
         run: |
-          sleep 60
-          curl -f https://gatus.moabdullahi.uk
+          for i in {1..12}; do
+            if curl -fsS https://gatus.moabdullahi.uk; then
+              echo "Health check passed"
+              exit 0
+            fi
+            echo "Still not healthy, waiting 10s..."
+            sleep 10
+            done
+            echo "Health check failed after waiting"
+            exit 1
