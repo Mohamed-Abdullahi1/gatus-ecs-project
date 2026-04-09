@@ -1,6 +1,7 @@
 # ECS Gatus Monitoring Stack
 
-A production-style containerised monitoring application deployed on AWS using ECS Fargate, provisioned with Terraform, and delivered through a CI/CD pipeline.
+A containerised monitoring application deployed on AWS using ECS Fargate,
+provisioned with Terraform, and delivered through a CI/CD pipeline.
 
 ---
 ## Overview
@@ -41,7 +42,6 @@ The application is served over HTTPS using AWS Certificate Manager.
 - Remote Terraform state stored in S3 with locking
 - HTTPS enabled via AWS Certificate Manager
 - Real-time monitoring with Gatus
-- Immutable deployments using commit SHA-based Docker image tagging
 
 ---
 
@@ -70,7 +70,9 @@ The application container is built and pushed to Amazon ECR through a CI/CD pipe
 
 Monitoring is implemented using Gatus, providing real-time visibility into application health, response times, and uptime.
 
-Overall, this architecture follows a production-style design, separating public and private resources, enforcing controlled access, and ensuring high availability across Availability Zones.
+This architecture separates public and private resources, enforces
+controlled access, and is deployed across two Availability Zones.
+
 
 ## Pipeline Execution
 
@@ -133,20 +135,31 @@ File ownership is explicitly set to ensure the application has the correct permi
 
 ## Security Considerations
 
-- ECS tasks run in private subnets with no public IP addresses  
-- All inbound traffic is routed through the Application Load Balancer  
-- Security groups restrict access to ALB → ECS only  
-- HTTPS is enforced using AWS Certificate Manager  
-- No direct internet access to application containers  
+- ECS tasks run in private subnets with no public IP addresses
+- Security groups use SG-to-SG rules — ECS only accepts traffic from
+  the ALB security group, not open CIDR ranges
+- HTTP redirected to HTTPS via ALB 301 redirect
+- HTTPS enforced via ACM with TLS 1.3 policy
+- OIDC authentication for GitHub Actions — no static AWS keys in CI/CD
+- Terraform state stored remotely in S3 with native state locking
 
-## How to Run This Project
+## How to Reproduce This Project
+
+Note: This project incurs AWS costs while running. Tear down
+infrastructure when not in use.
 
 ### Prerequisites
 
-- Terraform
-- AWS CLI (configured with credentials)
+- Terraform >= 1.14
+- AWS CLI configured with appropriate permissions
+- A registered domain with a subdomain delegated to Route53
+- GitHub repository with the following secrets configured:
 
----
+| Secret | Description |
+|---|---|
+| `AWS_ROLE_ARN` | IAM role ARN for OIDC authentication |
+| `TF_VAR_hosted_zone_id` | Route53 hosted zone ID |
+| `TF_VAR_ECR_REPOSITORY_URL` | Full ECR repository URL |
 
 ### 1. Clone the repository
 
@@ -155,24 +168,26 @@ git clone https://github.com/Mohamed-Abdullahi1/gatus-ecs-project.git
 cd gatus-ecs-project
 ```
 
----
+### 2. Bootstrap the state backend
 
-### 2. Configure AWS credentials
-
-```bash
-aws configure
-```
-
----
-
-### 3. Apply infrastructure
+The S3 bucket for Terraform state must exist before deploying
+infrastructure.
 
 ```bash
-cd infra
+cd bootstrap
 terraform init
 terraform apply
 ```
 
----
+### 3. Deploy via CI/CD
 
-Application builds and deployments are handled automatically through the CI/CD pipeline.
+Push to main to trigger the pipelines automatically, or trigger
+manually via workflow_dispatch in the Actions tab.
+
+Infrastructure is managed through the CI/CD pipeline. Manual
+terraform apply is not recommended.
+
+### 4. Tear down
+
+Trigger the destroy pipeline manually via workflow_dispatch in
+the Actions tab.
