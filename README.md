@@ -136,11 +136,11 @@ File ownership is explicitly set to ensure the application has the correct permi
 ## Security Considerations
 
 - ECS tasks run in private subnets with no public IP addresses
-- Security groups use SG-to-SG rules — ECS only accepts traffic from
+- Security groups use SG-to-SG rules, ECS only accepts traffic from
   the ALB security group, not open CIDR ranges
 - HTTP redirected to HTTPS via ALB 301 redirect
 - HTTPS enforced via ACM with TLS 1.3 policy
-- OIDC authentication for GitHub Actions — no static AWS keys in CI/CD
+- OIDC authentication for GitHub Actions, no static AWS keys in CI/CD
 - Terraform state stored remotely in S3 with native state locking
 
 ## How to Reproduce This Project
