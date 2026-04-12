@@ -6,5 +6,5 @@ variable "project_name" {
 
 variable "image_tag_mutability" {
   type    = string
-  default = "MUTABLE"
+  default = "IMMUTABLE"
 }
