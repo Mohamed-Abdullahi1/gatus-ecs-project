@@ -7,3 +7,13 @@ README.md
 terraform
 .github
 *.md
+
+infra
+bootstrap
+screenshots
+
+*
+!app/
+!app/**
+!Dockerfile.baseline
+!.dockerignore
