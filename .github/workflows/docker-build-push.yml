@@ -45,7 +45,12 @@ jobs:
 
       - name: Build Docker image
         run: | 
-          docker buildx build \ --platform linux/arm64 \ -f ./Dockerfile \ -t $ECR_REPOSITORY:$IMAGE_TAG \ -T $ECR_REPOSITORY:$IMAGE_TAG \ -t $ECR_REPOSITORY:latest \ --load .
+          docker buildx build \
+            --platform linux/arm64 \
+            -f ./Dockerfile \
+            -t $ECR_REPOSITORY:$IMAGE_TAG \
+            -t $ECR_REPOSITORY:latest \
+            --load .
 
       - name: Scan image for vulnerabilities
         uses: aquasecurity/trivy-action@0.35.0
