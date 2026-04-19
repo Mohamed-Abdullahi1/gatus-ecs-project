@@ -42,7 +42,16 @@ The application is served over HTTPS using AWS Certificate Manager.
 - Remote Terraform state stored in S3 with locking
 - HTTPS enabled via AWS Certificate Manager
 - Real-time monitoring with Gatus
+---
+## Key Outcomes
 
+- Reduced Docker image size from ~2.45GB (single-stage build including toolchain and dependencies) to ~58MB using a multi-stage build, removing unnecessary build artifacts from the final runtime image
+
+- Automated image build, scan, and deployment through GitHub Actions, eliminating manual deployment steps and ensuring consistent releases
+
+- Integrated Trivy image scanning into the CI pipeline to surface vulnerabilities before images are pushed to ECR
+
+- Deployed a production-style architecture with private subnet isolation, ALB-managed HTTPS (TLS 1.3), HTTP to HTTPS redirection, and multi-AZ resilience
 ---
 
 ## Architecture
@@ -106,23 +115,23 @@ Tears down infrastructure when required.
 
 ```text
 .
-├──app/                       # Gatus application configuration
-├── bootstrap/                # Initial infrastructure (e.g. state backend)
+├──app/                      
+├── bootstrap/                
 ├── infra/
-│   ├── modules/              # Reusable Terraform modules
+│   ├── modules/              
 │   │   ├── acm/
 │   │   ├── alb/
 │   │   ├── ecs/
 │   │   ├── route53/
 │   │   └── vpc/
-│   ├── backend.tf            # S3 remote state configuration
-│   ├── provider.tf           # AWS provider configuration
-│   ├── variables.tf          # Input variables
+│   ├── backend.tf            
+│   ├── provider.tf           
+│   ├── variables.tf          
 │   ├── outputs.tf            
-│   └── main.tf               # Root infrastructure definition
-├── .github/workflows/        # CI/CD pipelines
-├── screenshots/              # Architecture diagram and demo assets
-├── Dockerfile                # Container build definition
+│   └── main.tf               
+├── .github/workflows/        
+├── screenshots/               
+├── Dockerfile                
 ```
 
 ## Docker Improvements
